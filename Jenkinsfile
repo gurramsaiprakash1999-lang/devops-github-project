@@ -17,10 +17,13 @@ pipeline {
                     export PATH=$PATH:/usr/local/bin
                     export KUBECONFIG=/var/lib/jenkins/.kube/config
                     
-                    # Ensure Minikube image registry receives the new build
+                    # 1. Check if Minikube is running; if not, start it automatically
+                    minikube status || minikube start --driver=docker --ports=30300:30300,5000:5000 --force
+                    
+                    # 2. Load the built image into Minikube
                     minikube image load webapp:latest
                     
-                    # Apply Manifests & Force Pod Refresh
+                    # 3. Apply manifests & restart deployment
                     kubectl apply -f k8s-deployment.yaml
                     kubectl rollout restart deployment/webapp-deployment
                     kubectl rollout status deployment/webapp-deployment --timeout=60s
