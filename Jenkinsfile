@@ -25,6 +25,11 @@ pipeline {
                     kubectl apply -f k8s-deployment.yaml
                     kubectl rollout restart deployment/webapp-deployment
                     kubectl rollout status deployment/webapp-deployment --timeout=60s
+
+                    pkill -f "port-forward" || true
+                    nohup kubectl port-forward --address 0.0.0.0 service/webapp-service 5000:5000 > /dev/null 2>&1 &
+                    nohup kubectl port-forward --address 0.0.0.0 service/webapp-service 30300:5000 > /dev/null 2>&1 &
+                    sleep 3
                 '''
             }
         }
